@@ -1,5 +1,3 @@
-// import { Github, Instagram, Linkedin, X } from "lucide-react";
-// import { Github, Instagram, Linkedin, X } from "@heroicons/react/24/outline";
 import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
@@ -60,11 +58,11 @@ export default function Footer() {
                     {/* Brand */}
                     <div>
                         <h3 className="text-xl font-serif font-bold text-foreground mb-4">
-                            Resonance
+                            MediaScan
                         </h3>
                         <p className="text-muted-foreground mb-4">
-                            Writing that resonates with the curious minds of the
-                            digital age. Exploring the intersection of
+                            Video insights that resonate with curious minds of
+                            the digital age, exploring the intersection of
                             technology, design, and creativity.
                         </p>
 

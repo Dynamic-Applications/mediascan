@@ -18,11 +18,12 @@ export default function FeaturedSection() {
                     className="text-center mb-16"
                 >
                     <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-                        Featured Insights
+                        Featured Video Insights
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Curated thoughts and discoveries from the intersection
-                        of technology, design, and human experience.
+                        Curated video thoughts and discoveries at the
+                        intersection of technology, design, and human
+                        experience.
                     </p>
                 </motion.div>
 
@@ -71,7 +72,7 @@ export default function FeaturedSection() {
                                         {post.excerpt}
                                     </p>
                                     <div className="flex items-center text-primary font-medium group-hover:underline">
-                                        Read more{" "}
+                                        Play{" "}
                                         <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                                     </div>
                                 </CardContent>

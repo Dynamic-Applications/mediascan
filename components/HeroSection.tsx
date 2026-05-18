@@ -15,16 +15,13 @@ export default function HeroSection() {
                         className="text-center lg:text-left"
                     >
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight mb-6">
-                            Writing That{" "}
-                            <span className="text-primary italic">
-                                Resonates
-                            </span>
+                            Discovering What{" "}
+                            <span className="text-primary italic">Matters</span>
                         </h1>
 
                         <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl">
-                            Insights on tech, design, and creativity from a
-                            digital craftsman who believes in the power of
-                            thoughtful storytelling.
+                            Insights on tech, design, and creativity through
+                            smarter video search with the MediaScan application.
                         </p>
 
                         <motion.div
@@ -33,7 +30,7 @@ export default function HeroSection() {
                             transition={{ duration: 0.8, delay: 0.2 }}
                         >
                             <Button size="lg" className="group">
-                                Read the Latest Post{" "}
+                                View the Latest Post{" "}
                                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </Button>
                         </motion.div>
