@@ -125,7 +125,7 @@ export default function Footer() {
 
                 <div className="mt-12 pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
                     <p>
-                        © {new Date().getFullYear()} Resonance. All rights
+                        © {new Date().getFullYear()} MediaScan. All rights
                         reserved.
                     </p>
                 </div>
