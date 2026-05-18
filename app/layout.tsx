@@ -12,9 +12,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-    title: "Writing That Resonates - A Modern Blog",
+    title: "Video Search That Resonates – A Modern Discovery Tool",
     description:
-        "Insights on tech, design, and creativity from a thought leaader",
+        "Insights on tech, design, and creativity through smarter video search with the MediaScan application.",
 };
 
 export default function RootLayout({
