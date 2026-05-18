@@ -1,15 +1,15 @@
 export const navItems = [
   {
-    name: "Home",
+    name: "Login",
     href: "/",
   },
   {
-    name: "Categories",
-    href: "/categories",
+    name: "Playlists",
+    href: "/playlists",
   },
   {
-    name: "About",
-    href: "/about",
+    name: "Profile",
+    href: "/profile",
   },
   {
     name: "Contact",
