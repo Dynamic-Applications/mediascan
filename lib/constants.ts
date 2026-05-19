@@ -3,10 +3,10 @@ export const navItems = [
         name: "Home",
         href: "/",
     },
-    {
-        name: "Login",
-        href: "/login",
-    },
+    // {
+    //     name: "Login",
+    //     href: "/login",
+    // },
     {
         name: "Playlists",
         href: "/playlists",

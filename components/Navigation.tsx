@@ -1,7 +1,10 @@
+"use client";
+
 import { navItems } from "@/lib/constants";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
-import MobileNavigtaion from "./MobileNavigation";
+import MobileNavigation from "./MobileNavigation";
+import { LoginDialog, SignupDialog } from "./auth-dialogs";
 
 export default function Navigation() {
     return (
@@ -17,22 +20,41 @@ export default function Navigation() {
 
                     {/* Desktop navigation */}
                     <div className="hidden md:flex items-center space-x-8">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
+                        {navItems.map(
+                            (
+                                item, // ← map only renders non-Login items now
+                            ) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                                >
+                                    {item.name}
+                                </Link>
+                            ),
+                        )}
+
+                        <LoginDialog // ← Login lives outside the map
+                            trigger={
+                                <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+                                    Login
+                                </button>
+                            }
+                        />
+
+                        {/* <SignupDialog
+                            trigger={
+                                <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+                                    Sign Up
+                                </button>
+                            }
+                        /> */}
 
                         <ThemeToggle />
                     </div>
 
                     {/* Mobile nav */}
-
-                    <MobileNavigtaion />
+                    <MobileNavigation />
                 </div>
             </div>
         </nav>

@@ -12,9 +12,11 @@ import { Menu } from "lucide-react";
 import { navItems } from "@/lib/constants";
 import Link from "next/link";
 import { useState } from "react";
+import { LoginDialog, SignupDialog } from "./auth-dialogs";
 
-export default function MobileNavigtaion() {
+export default function MobileNavigation() {
     const [isOpen, setIsOpen] = useState(false);
+
     return (
         <div className="md:hidden flex items-center space-x-4">
             <ThemeToggle />
@@ -27,16 +29,37 @@ export default function MobileNavigtaion() {
                 <SheetContent>
                     <SheetTitle></SheetTitle>
                     <div className="flex flex-col space-y-4 mt-8 p-8">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
+                        {navItems.map(
+                            (
+                                item, // ← map only renders non-Login items now
+                            ) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    {item.name}
+                                </Link>
+                            ),
+                        )}
+                        <LoginDialog // ← Login lives outside the map
+                            trigger={
+                                <button
+                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left"
+                                    // onClick={() => setIsOpen(false)}
+                                >
+                                    Login
+                                </button>
+                            }
+                        />
+                        {/* <SignupDialog
+                            trigger={
+                                <button className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left">
+                                    Sign Up
+                                </button>
+                            }
+                        /> */}
                     </div>
                 </SheetContent>
             </Sheet>
