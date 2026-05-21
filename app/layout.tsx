@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/lib/context/auth-context";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({
@@ -33,8 +34,10 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <Navigation />
-                    {children}
+                    <AuthProvider>
+                        <Navigation />
+                        {children}
+                    </AuthProvider>
                     <Footer />
                 </ThemeProvider>
             </body>

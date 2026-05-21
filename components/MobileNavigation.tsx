@@ -12,10 +12,12 @@ import { Menu } from "lucide-react";
 import { navItems } from "@/lib/constants";
 import Link from "next/link";
 import { useState } from "react";
-import { LoginDialog, SignupDialog } from "./auth-dialogs";
+import { LoginDialog } from "./auth-dialogs";
+import { useAuth } from "@/lib/context/auth-context";
 
 export default function MobileNavigation() {
     const [isOpen, setIsOpen] = useState(false);
+    const { user, signOut } = useAuth();
 
     return (
         <div className="md:hidden flex items-center space-x-4">
@@ -29,37 +31,36 @@ export default function MobileNavigation() {
                 <SheetContent>
                     <SheetTitle></SheetTitle>
                     <div className="flex flex-col space-y-4 mt-8 p-8">
-                        {navItems.map(
-                            (
-                                item, // ← map only renders non-Login items now
-                            ) => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    {item.name}
-                                </Link>
-                            ),
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+
+                        {user ? (
+                            <button
+                                className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left"
+                                onClick={async () => {
+                                    await signOut();
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Sign Out
+                            </button>
+                        ) : (
+                            <LoginDialog
+                                trigger={
+                                    <button className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left">
+                                        Login
+                                    </button>
+                                }
+                            />
                         )}
-                        <LoginDialog // ← Login lives outside the map
-                            trigger={
-                                <button
-                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left"
-                                    // onClick={() => setIsOpen(false)}
-                                >
-                                    Login
-                                </button>
-                            }
-                        />
-                        {/* <SignupDialog
-                            trigger={
-                                <button className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left">
-                                    Sign Up
-                                </button>
-                            }
-                        /> */}
                     </div>
                 </SheetContent>
             </Sheet>

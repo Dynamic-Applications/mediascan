@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/lib/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -10,7 +11,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +25,77 @@ function AuthDialogs({
     initialView: "login" | "signup";
     trigger: React.ReactNode;
 }) {
+    const { setUser } = useAuth();
     const [view, setView] = useState<View>("closed");
+
+    const [loginEmail, setLoginEmail] = useState("");
+    const [loginPassword, setLoginPassword] = useState("");
+    const [loginError, setLoginError] = useState("");
+    const [loginLoading, setLoginLoading] = useState(false);
+
+    const [signupName, setSignupName] = useState("");
+    const [signupEmail, setSignupEmail] = useState("");
+    const [signupPassword, setSignupPassword] = useState("");
+    const [signupError, setSignupError] = useState("");
+    const [signupLoading, setSignupLoading] = useState(false);
+    const [signupSuccess, setSignupSuccess] = useState("");
+
+    async function handleLogin() {
+        setLoginError("");
+        setLoginLoading(true);
+        try {
+            const res = await fetch("/api/auth/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: loginEmail,
+                    password: loginPassword,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setLoginError(data.error ?? "Something went wrong");
+            } else {
+                setUser(data.data.user);
+                setView("closed");
+            }
+        } catch {
+            setLoginError("Network error, please try again");
+        } finally {
+            setLoginLoading(false);
+        }
+    }
+
+    async function handleSignup() {
+        setSignupError("");
+        setSignupLoading(true);
+        try {
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: signupEmail,
+                    name: signupName,
+                    password: signupPassword,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setSignupError(data.error ?? "Something went wrong");
+            } else {
+                setUser(data.data.user);
+                setSignupSuccess(data.message ?? "Account created!");
+                setTimeout(() => {
+                    setView("closed");
+                    setSignupSuccess("");
+                }, 3000);
+            }
+        } catch {
+            setSignupError("Network error, please try again");
+        } finally {
+            setSignupLoading(false);
+        }
+    }
 
     return (
         <>
@@ -50,11 +120,23 @@ function AuthDialogs({
                                 id="login-email"
                                 placeholder="you@example.com"
                                 type="email"
+                                value={loginEmail}
+                                onChange={(e) => setLoginEmail(e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="login-password">Password</Label>
-                            <Input id="login-password" type="password" />
+                            <Input
+                                id="login-password"
+                                type="password"
+                                value={loginPassword}
+                                onChange={(e) =>
+                                    setLoginPassword(e.target.value)
+                                }
+                                onKeyDown={(e) =>
+                                    e.key === "Enter" && handleLogin()
+                                }
+                            />
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -73,9 +155,20 @@ function AuthDialogs({
                                 Forgot password?
                             </button>
                         </div>
+                        {loginError && (
+                            <p className="text-sm text-destructive">
+                                {loginError}
+                            </p>
+                        )}
                     </div>
                     <DialogFooter>
-                        <Button className="w-full">Sign In</Button>
+                        <Button
+                            className="w-full"
+                            onClick={handleLogin}
+                            disabled={loginLoading}
+                        >
+                            {loginLoading ? "Signing in..." : "Sign In"}
+                        </Button>
                     </DialogFooter>
                     <p className="text-center text-muted-foreground text-sm">
                         Don't have an account?{" "}
@@ -105,7 +198,12 @@ function AuthDialogs({
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="signup-name">Full name</Label>
-                            <Input id="signup-name" placeholder="John Doe" />
+                            <Input
+                                id="signup-name"
+                                placeholder="John Doe"
+                                value={signupName}
+                                onChange={(e) => setSignupName(e.target.value)}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="signup-email">Email</Label>
@@ -113,13 +211,56 @@ function AuthDialogs({
                                 id="signup-email"
                                 placeholder="you@example.com"
                                 type="email"
+                                value={signupEmail}
+                                onChange={(e) => setSignupEmail(e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="signup-password">Password</Label>
-                            <Input id="signup-password" type="password" />
+                            <Input
+                                id="signup-password"
+                                type="password"
+                                value={signupPassword}
+                                onChange={(e) =>
+                                    setSignupPassword(e.target.value)
+                                }
+                                onKeyDown={(e) =>
+                                    e.key === "Enter" && handleSignup()
+                                }
+                            />
                         </div>
-                        <Button className="w-full">Create Account</Button>
+                        {signupSuccess && (
+                            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                                <svg
+                                    className="h-4 w-4 shrink-0"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                <p className="text-sm font-medium">
+                                    {signupSuccess}
+                                </p>
+                            </div>
+                        )}
+                        {signupError && (
+                            <p className="text-sm text-destructive">
+                                {signupError}
+                            </p>
+                        )}
+                        <Button
+                            className="w-full"
+                            onClick={handleSignup}
+                            disabled={signupLoading}
+                        >
+                            {signupLoading
+                                ? "Creating account..."
+                                : "Create Account"}
+                        </Button>
                         <div className="relative flex items-center gap-2">
                             <Separator className="flex-1" />
                             <span className="shrink-0 px-2 text-muted-foreground text-xs uppercase">
