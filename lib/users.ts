@@ -1,3 +1,4 @@
+import { sql } from "@vercel/postgres";
 import bcrypt from "bcryptjs";
 
 export interface User {
@@ -15,24 +16,16 @@ export interface SafeUser {
     createdAt: string;
 }
 
-declare global {
-    var __users: User[];
-    var __nextUserId: number;
-}
-
-if (!global.__users) {
-    global.__users = [];
-    global.__nextUserId = 2;
-    // seed runs once
-    bcrypt.hash("123456", 10).then((hash) => {
-        global.__users.push({
-            id: "1",
-            email: "user@example.com",
-            name: "Ahmad",
-            passwordHash: hash,
-            createdAt: new Date().toISOString(),
-        });
-    });
+export async function createTable() {
+    await sql`
+        CREATE TABLE IF NOT EXISTS users (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            email TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    `;
 }
 
 export async function createUser(
@@ -40,30 +33,61 @@ export async function createUser(
     name: string,
     password: string,
 ): Promise<SafeUser> {
+    await createTable();
     const passwordHash = await bcrypt.hash(password, 10);
-    const user: User = {
-        id: String(global.__nextUserId++),
-        email: email.toLowerCase().trim(),
-        name: name.trim(),
-        passwordHash,
-        createdAt: new Date().toISOString(),
+    const { rows } = await sql`
+        INSERT INTO users (email, name, password_hash)
+        VALUES (${email.toLowerCase().trim()}, ${name.trim()}, ${passwordHash})
+        RETURNING id, email, name, created_at
+    `;
+    return {
+        id: rows[0].id,
+        email: rows[0].email,
+        name: rows[0].name,
+        createdAt: rows[0].created_at,
     };
-    global.__users.push(user);
-    return safeUser(user);
 }
 
 export async function findUserByEmail(
     email: string,
 ): Promise<User | undefined> {
-    return global.__users.find((u) => u.email === email.toLowerCase().trim());
+    await createTable();
+    const { rows } = await sql`
+        SELECT id, email, name, password_hash, created_at
+        FROM users WHERE email = ${email.toLowerCase().trim()}
+    `;
+    if (!rows[0]) return undefined;
+    return {
+        id: rows[0].id,
+        email: rows[0].email,
+        name: rows[0].name,
+        passwordHash: rows[0].password_hash,
+        createdAt: rows[0].created_at,
+    };
 }
 
-export function findUserById(id: string): User | undefined {
-    return global.__users.find((u) => u.id === id);
+export async function findUserById(id: string): Promise<User | undefined> {
+    await createTable();
+    const { rows } = await sql`
+        SELECT id, email, name, password_hash, created_at
+        FROM users WHERE id = ${id}
+    `;
+    if (!rows[0]) return undefined;
+    return {
+        id: rows[0].id,
+        email: rows[0].email,
+        name: rows[0].name,
+        passwordHash: rows[0].password_hash,
+        createdAt: rows[0].created_at,
+    };
 }
 
-export function getAllUsers(): SafeUser[] {
-    return global.__users.map(safeUser);
+export async function emailExists(email: string): Promise<boolean> {
+    await createTable();
+    const { rows } = await sql`
+        SELECT 1 FROM users WHERE email = ${email.toLowerCase().trim()}
+    `;
+    return rows.length > 0;
 }
 
 export async function verifyPassword(
@@ -71,10 +95,6 @@ export async function verifyPassword(
     password: string,
 ): Promise<boolean> {
     return bcrypt.compare(password, user.passwordHash);
-}
-
-export function emailExists(email: string): boolean {
-    return global.__users.some((u) => u.email === email.toLowerCase().trim());
 }
 
 export function safeUser(user: User): SafeUser {
