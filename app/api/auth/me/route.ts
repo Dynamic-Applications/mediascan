@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     if (!payload) {
         return NextResponse.json({ success: false }, { status: 401 });
     }
-    const user = findUserById(payload.sub);
+    const user = await findUserById(payload.sub);
     if (!user) {
         return NextResponse.json({ success: false }, { status: 401 });
     }
