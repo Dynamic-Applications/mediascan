@@ -9,8 +9,10 @@ type Handler = (
 export function withAuth(handler: Handler) {
     return async (
         req: NextRequest,
-        ctx: { params: Promise<Record<string, string>> },
-    ) => {
+        ctx: {
+            params: Promise<Record<string, string>> | Record<string, string>;
+        },
+    ): Promise<NextResponse> => {
         const user = await getTokenFromRequest(req);
         if (!user) {
             return NextResponse.json(
@@ -18,7 +20,7 @@ export function withAuth(handler: Handler) {
                 { status: 401 },
             );
         }
-        const params = await ctx.params;
+        const params = await Promise.resolve(ctx.params);
         return handler(req, { params, user });
     };
 }
