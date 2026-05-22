@@ -29,7 +29,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
   }
   try {
     const { payload } = await jwtVerify(token, jwtSecretKey);
-    return payload as JWTPayload;
+    return payload as unknown as JWTPayload;
   } catch {
     return null;
   }
