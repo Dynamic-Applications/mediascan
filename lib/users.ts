@@ -37,7 +37,7 @@ export async function createUser(
 ): Promise<SafeUser> {
     await createTable();
     const passwordHash = await bcrypt.hash(password, 10);
-    const { rows } = await sql`
+    const rows = await sql`
         INSERT INTO users (email, name, password_hash)
         VALUES (${email.toLowerCase().trim()}, ${name.trim()}, ${passwordHash})
         RETURNING id, email, name, created_at
@@ -52,9 +52,7 @@ export async function createUser(
 
 export async function getAllUsers(): Promise<SafeUser[]> {
     await createTable();
-    const { rows } = await sql`
-        SELECT id, email, name, created_at FROM users
-    `;
+    const rows = await sql`SELECT id, email, name, created_at FROM users`;
     return rows.map((r) => ({
         id: r.id,
         email: r.email,
@@ -67,7 +65,7 @@ export async function findUserByEmail(
     email: string,
 ): Promise<User | undefined> {
     await createTable();
-    const { rows } = await sql`
+    const rows = await sql`
         SELECT id, email, name, password_hash, created_at
         FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
@@ -83,7 +81,7 @@ export async function findUserByEmail(
 
 export async function findUserById(id: string): Promise<User | undefined> {
     await createTable();
-    const { rows } = await sql`
+    const rows = await sql`
         SELECT id, email, name, password_hash, created_at
         FROM users WHERE id = ${id}
     `;
@@ -99,7 +97,7 @@ export async function findUserById(id: string): Promise<User | undefined> {
 
 export async function emailExists(email: string): Promise<boolean> {
     await createTable();
-    const { rows } = await sql`
+    const rows = await sql`
         SELECT 1 FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
     return rows.length > 0;
