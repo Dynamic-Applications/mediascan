@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!password || typeof password !== "string" || password.length < 6) {
       return NextResponse.json({ success: false, error: "Password must be at least 6 characters" }, { status: 400 });
     }
-    if (emailExists(email)) {
+    if (await emailExists(email)) {
       return NextResponse.json({ success: false, error: "Email already registered" }, { status: 409 });
     }
 
