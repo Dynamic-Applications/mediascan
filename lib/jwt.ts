@@ -24,7 +24,7 @@ export async function signToken(payload: Omit<JWTPayload, "iat" | "exp">): Promi
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
-  if (isTokenBlacklisted(token)) {
+  if (await isTokenBlacklisted(token)) {
     return null;
   }
   try {
