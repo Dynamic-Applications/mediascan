@@ -48,6 +48,19 @@ export async function createUser(
     };
 }
 
+export async function getAllUsers(): Promise<SafeUser[]> {
+    await createTable();
+    const { rows } = await sql`
+        SELECT id, email, name, created_at FROM users
+    `;
+    return rows.map((r) => ({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        createdAt: r.created_at,
+    }));
+}
+
 export async function findUserByEmail(
     email: string,
 ): Promise<User | undefined> {
