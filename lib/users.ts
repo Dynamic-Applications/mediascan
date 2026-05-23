@@ -28,6 +28,8 @@ export async function createTable() {
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
     `;
+    await sql`
+    AlTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`;
 }
 
 export async function createUser(
@@ -91,6 +93,7 @@ export async function findUserById(id: string): Promise<User | undefined> {
         email: rows[0].email,
         name: rows[0].name,
         passwordHash: rows[0].password_hash,
+        avatarUrl: rows[0].avatar_url ?? undefined,
         createdAt: rows[0].created_at,
     };
 }
@@ -113,4 +116,28 @@ export async function verifyPassword(
 export function safeUser(user: User): SafeUser {
     const { passwordHash: _, ...safe } = user;
     return safe;
+}
+
+export interface User {
+    id: string;
+    email: string;
+    name: string;
+    passwordHash: string;
+    avatarUrl?: string;
+    createdAt: string;
+}
+
+export interface SafeUser {
+    id: string;
+    email: string;
+    name: string;
+    avatarUrl?: string;
+    createdAt: string;
+}
+
+export async function updateUserAvatar(
+    id: string,
+    avatarUrl: string,
+): Promise<void> {
+    await sql`UPDATE users SET avatar_url = ${avatarUrl} WHERE id = ${id}`;
 }

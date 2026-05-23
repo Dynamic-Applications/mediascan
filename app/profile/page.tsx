@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/context/auth-context";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProfileUser {
     id: string;
     email: string;
     name: string;
+    avatarUrl?: string;
     createdAt: string;
 }
 
 export default function ProfilePage() {
-    const { user } = useAuth();
     const router = useRouter();
     const [profile, setProfile] = useState<ProfileUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState("");
 
     useEffect(() => {
         fetch("/api/auth/me")
@@ -31,6 +33,35 @@ export default function ProfilePage() {
             .catch(() => setError("Failed to load profile"))
             .finally(() => setLoading(false));
     }, [router]);
+
+    async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file || !profile) return;
+
+        setUploadError("");
+        setUploading(true);
+        const form = new FormData();
+        form.append("avatar", file);
+
+        try {
+            const res = await fetch("/api/auth/me/avatar", {
+                method: "POST",
+                body: form,
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setUploadError(data.error ?? "Upload failed");
+            } else {
+                setProfile((p) =>
+                    p ? { ...p, avatarUrl: data.avatarUrl } : p,
+                );
+            }
+        } catch {
+            setUploadError("Upload failed, please try again");
+        } finally {
+            setUploading(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -54,9 +85,33 @@ export default function ProfilePage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
             {/* Avatar */}
             <div className="flex items-center gap-5 mb-10">
-                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-2xl font-semibold text-foreground">
-                    {profile.name.charAt(0).toUpperCase()}
-                </div>
+                <label className="relative cursor-pointer group">
+                    <div className="h-16 w-16 rounded-full bg-muted overflow-hidden flex items-center justify-center text-2xl font-semibold text-foreground">
+                        {profile.avatarUrl ? (
+                            <Image
+                                src={profile.avatarUrl}
+                                alt={profile.name}
+                                width={64}
+                                height={64}
+                                className="object-cover w-full h-full"
+                            />
+                        ) : (
+                            profile.name.charAt(0).toUpperCase()
+                        )}
+                    </div>
+                    <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-xs font-medium">
+                            {uploading ? "..." : "Edit"}
+                        </span>
+                    </div>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                        disabled={uploading}
+                    />
+                </label>
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">
                         {profile.name}
@@ -64,6 +119,11 @@ export default function ProfilePage() {
                     <p className="text-sm text-muted-foreground">
                         {profile.email}
                     </p>
+                    {uploadError && (
+                        <p className="text-xs text-destructive mt-1">
+                            {uploadError}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -72,7 +132,6 @@ export default function ProfilePage() {
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                     Account details
                 </h2>
-
                 <div className="space-y-4">
                     <div className="flex justify-between items-center py-3 border-b border-border">
                         <span className="text-sm text-muted-foreground">
@@ -115,13 +174,6 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </div>
-
-            {/* Not signed in warning */}
-            {!user && (
-                <p className="mt-6 text-sm text-muted-foreground text-center">
-                    You are not signed in.
-                </p>
-            )}
         </div>
     );
 }

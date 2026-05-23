@@ -13,6 +13,6 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({
         success: true,
-        user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
+        user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl, createdAt: user.createdAt },
     });
 }
