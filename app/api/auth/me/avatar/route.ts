@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     const blob = await put(`avatars/${payload.sub}`, file, {
         access: "public",
         addRandomSuffix: false,
+        allowOverwrite: true,
     });
     await updateUserAvatar(payload.sub, blob.url);
 
