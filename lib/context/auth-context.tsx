@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 
 interface AuthUser {
     id: string;
     email: string;
     name: string;
+    avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -23,33 +24,29 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+
+    async function fetchMe() {
+        try {
+            const r = await fetch("/api/auth/me");
+            const data = await r.json();
+            if (data.success) setUser(data.user);
+        } catch {}
+    }
 
     useEffect(() => {
-        // check our own JWT cookie first
-        fetch("/api/auth/me")
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.success) setUser(data.user);
-            })
-            .catch(() => {});
+        fetchMe();
     }, []);
 
-    // sync Google session
+    // re-fetch when Google session becomes available
     useEffect(() => {
-        if (session?.user?.email && !user) {
-            fetch("/api/auth/me")
-                .then((r) => r.json())
-                .then((data) => {
-                    if (data.success) setUser(data.user);
-                })
-                .catch(() => {});
+        if (status === "authenticated" && !user) {
+            fetchMe();
         }
-    }, [session]);
+    }, [status]);
 
     async function signOut() {
         await fetch("/api/auth/signout", { method: "POST" });
-        const { signOut: nextAuthSignOut } = await import("next-auth/react");
         await nextAuthSignOut({ redirect: false });
         setUser(null);
     }
