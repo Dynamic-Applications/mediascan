@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,6 +41,15 @@ function AuthDialogs({
     const [signupLoading, setSignupLoading] = useState(false);
     const [signupSuccess, setSignupSuccess] = useState("");
 
+    useEffect(() => {
+        function handleOpenLogin() {
+            setView("login");
+        }
+        window.addEventListener("open-login-dialog", handleOpenLogin);
+        return () =>
+            window.removeEventListener("open-login-dialog", handleOpenLogin);
+    }, []);
+
     async function handleLogin() {
         setLoginError("");
         setLoginLoading(true);
@@ -59,6 +68,12 @@ function AuthDialogs({
             } else {
                 setUser(data.data.user);
                 setView("closed");
+                // redirect to intended video if stored
+                const redirect = sessionStorage.getItem("redirectAfterLogin");
+                if (redirect) {
+                    sessionStorage.removeItem("redirectAfterLogin");
+                    window.open(redirect, "_blank");
+                }
             }
         } catch {
             setLoginError("Network error, please try again");

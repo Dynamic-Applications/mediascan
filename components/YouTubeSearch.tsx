@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Calendar } from "lucide-react";
-import {Badge} from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
 
 interface VideoItem {
     id: { videoId: string };
@@ -26,6 +27,7 @@ export default function YouTubeSearch() {
     const [nextPageToken, setNextPageToken] = useState<string | null>(null);
     const [prevPageToken, setPrevPageToken] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const { handleVideoClick } = useProtectedVideo();
 
     async function search(q: string, pageToken?: string) {
         if (!q.trim()) return;
@@ -130,8 +132,12 @@ export default function YouTubeSearch() {
                                     href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={(e) =>
+                                        handleVideoClick(e, video.id.videoId)
+                                    }
                                     className="rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/30 transition-colors group"
                                 >
+                                    {/* ↓ replace your existing thumbnail div with this */}
                                     <div className="relative aspect-video w-full overflow-hidden">
                                         <Image
                                             src={
@@ -142,28 +148,47 @@ export default function YouTubeSearch() {
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                                         />
-                                        <div className="absolute top-4 left-4">
+                                        {!isAuthenticated && (
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <div className="bg-background/90 rounded-full p-2">
+                                                    <svg
+                                                        className="h-5 w-5 text-foreground"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
                                             <Badge
                                                 variant="secondary"
-                                                className="bg-background/80 backdrop-blur-xs"
+                                                className="bg-background/80 backdrop-blur-xs text-xs"
                                             >
                                                 {video.snippet.channelTitle}
                                             </Badge>
                                         </div>
                                     </div>
                                     <div className="p-3">
-                                        <div className="flex items-center text-xs text-muted-foreground mt-0.5">
-                                            <Calendar className="h-3 w-3 mr-1" />
-                                            {formatDate(
-                                                video.snippet.publishedAt,
-                                            )}
-                                        </div>
                                         <h3
                                             className="text-sm font-medium text-foreground line-clamp-2 mb-1"
                                             dangerouslySetInnerHTML={{
                                                 __html: video.snippet.title,
                                             }}
                                         />
+                                        <div className="flex items-center text-xs text-muted-foreground mt-0.5">
+                                            <Calendar className="h-3 w-3 mr-1" />
+                                            {formatDate(
+                                                video.snippet.publishedAt,
+                                            )}
+                                        </div>
                                     </div>
                                 </a>
                             ))}

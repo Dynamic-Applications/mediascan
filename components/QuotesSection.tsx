@@ -5,6 +5,7 @@ import Image from "next/image";
 import * as motion from "motion/react-client";
 import { TrendingUp, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
 
 interface VideoItem {
     id: { videoId: string };
@@ -21,6 +22,7 @@ interface VideoItem {
 export default function QuotesSection() {
     const [trends, setTrends] = useState<VideoItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const { handleVideoClick } = useProtectedVideo();
 
     useEffect(() => {
         fetch("/api/youtube/search?q=trending")
@@ -91,6 +93,7 @@ export default function QuotesSection() {
                                     href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={(e) => handleVideoClick(e, video.id.videoId)}
                                     className="block rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/30 hover:shadow-lg transition-all duration-300 group"
                                 >
                                     <div className="relative aspect-video w-full overflow-hidden">

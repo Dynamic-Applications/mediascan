@@ -6,6 +6,8 @@ import { categories } from "@/lib/data";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
 import { Calendar, X } from "lucide-react";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
+
 
 interface VideoItem {
     id: { videoId: string };
@@ -25,6 +27,7 @@ export default function CategoriesSection() {
     const [videos, setVideos] = useState<VideoItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const { handleVideoClick } = useProtectedVideo();
 
     async function handleCategoryClick(categoryName: string) {
         if (selectedCategory === categoryName) {
@@ -183,6 +186,7 @@ export default function CategoriesSection() {
                                             href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
+                                            onClick={(e) => handleVideoClick(e, video.id.videoId)}
                                             className="block rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/30 hover:shadow-lg transition-all duration-300 group"
                                         >
                                             <div className="relative aspect-video w-full overflow-hidden">
