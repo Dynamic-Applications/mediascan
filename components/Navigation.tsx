@@ -38,7 +38,7 @@ export default function Navigation() {
                             </Link>
                         ))}
 
-                        {user?.role === "superadmin" && (
+                        {(user?.role === "superadmin" || user?.role === "admin" ) && (
                             <Link
                                 href="/admin"
                                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"

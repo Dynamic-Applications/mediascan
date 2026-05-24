@@ -42,7 +42,7 @@ export default function MobileNavigation() {
                             </Link>
                         ))}
 
-                        {user?.role === "superadmin" && (
+                        {(user?.role === "superadmin" || user?.role === "admin") && (
                             <Link
                                 href="/admin"
                                 className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"

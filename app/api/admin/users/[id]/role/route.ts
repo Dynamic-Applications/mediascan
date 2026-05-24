@@ -19,7 +19,10 @@ export async function PATCH(
     const requester = await getRequestingUser(request);
     if (!requester || requester.role !== "superadmin") {
         return NextResponse.json(
-            { success: false, error: "Forbidden" },
+            {
+                success: false,
+                error: "Forbidden — only superadmin can change roles",
+            },
             { status: 403 },
         );
     }
