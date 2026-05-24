@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const { status } = useSession();
     const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const signOutRef = useRef<() => Promise<void>>();
+    const signOutRef = useRef<(() => Promise<void>) | null>(null);
 
     async function fetchMe() {
         try {
@@ -75,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             signOutRef.current?.();
         }, INACTIVITY_TIMEOUT);
     }
+
 
     // fetch on mount
     useEffect(() => {
