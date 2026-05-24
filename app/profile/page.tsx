@@ -28,6 +28,7 @@ export default function ProfilePage() {
                 if (!data.success) {
                     router.push("/");
                 } else {
+                    console.log("Profile data:", data.user);
                     setProfile(data.user);
                 }
             })
