@@ -25,7 +25,7 @@ async function getRequestingUser(request: NextRequest) {
 export async function GET(request: NextRequest) {
     const requester = await getRequestingUser(request);
     console.log("Requester:", requester);
-    if (!requester || requester.role !== "superadmin") {
+    if (!requester || requester.role !== "SuperAdmin") {
         return NextResponse.json(
             { success: false, error: "Forbidden" },
             { status: 403 },

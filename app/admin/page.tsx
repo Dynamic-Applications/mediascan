@@ -10,7 +10,7 @@ interface AdminUser {
     email: string;
     name: string;
     avatarUrl?: string;
-    role: "user" | "admin" | "superadmin";
+    role: "User" | "Admin" | "SuperAdmin";
     createdAt: string;
 }
 
@@ -23,11 +23,11 @@ export default function AdminPage() {
     const [updating, setUpdating] = useState<string | null>(null);
     const [successId, setSuccessId] = useState<string | null>(null);
 
-    const isSuperAdmin = user?.role === "superadmin";
+    const isSuperAdmin = user?.role === "SuperAdmin";
 
     useEffect(() => {
         if (!user) return;
-        if (!["superadmin", "admin"].includes(user.role)) {
+        if (!["SuperAdmin", "Admin"].includes(user.role)) {
             router.push("/");
             return;
         }
@@ -44,7 +44,7 @@ export default function AdminPage() {
             .finally(() => setLoading(false));
     }, [user, router]);
 
-    async function handleRoleChange(id: string, newRole: "user" | "admin") {
+    async function handleRoleChange(id: string, newRole: "User" | "Admin") {
         setUpdating(id);
         setSuccessId(null);
         try {
@@ -72,7 +72,7 @@ export default function AdminPage() {
         }
     }
 
-    if (!user || !["superadmin", "admin"].includes(user.role)) return null;
+    if (!user || !["SuperAdmin", "Admin"].includes(user.role)) return null;
 
     if (loading) {
         return (
@@ -165,7 +165,7 @@ export default function AdminPage() {
                                     <td className="px-6 py-4">
                                         <span
                                             className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                                                u.role === "admin"
+                                                u.role === "Admin"
                                                     ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                                                     : "bg-muted text-muted-foreground"
                                             }`}
@@ -199,16 +199,16 @@ export default function AdminPage() {
                                                         handleRoleChange(
                                                             u.id,
                                                             e.target.value as
-                                                                | "user"
-                                                                | "admin",
+                                                                | "User"
+                                                                | "Admin",
                                                         )
                                                     }
                                                     className="text-sm border border-border rounded-md px-2 py-1 bg-background text-foreground disabled:opacity-50"
                                                 >
-                                                    <option value="user">
+                                                    <option value="User">
                                                         User
                                                     </option>
-                                                    <option value="admin">
+                                                    <option value="Admin">
                                                         Admin
                                                     </option>
                                                 </select>
