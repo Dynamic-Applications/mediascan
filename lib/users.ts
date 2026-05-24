@@ -25,11 +25,14 @@ export async function createTable() {
             email TEXT UNIQUE NOT NULL,
             name TEXT NOT NULL,
             password_hash TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'user',
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
     `;
     await sql`
     AlTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`;
+    await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user'`;
 }
 
 export async function findUserByEmail(
@@ -37,7 +40,7 @@ export async function findUserByEmail(
 ): Promise<User | undefined> {
     await createTable();
     const rows = await sql`
-        SELECT id, email, name, password_hash, avatar_url, created_at
+        SELECT id, email, name, password_hash, avatar_url, role, created_at
         FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
     if (!rows[0]) return undefined;
@@ -47,6 +50,7 @@ export async function findUserByEmail(
         name: rows[0].name,
         passwordHash: rows[0].password_hash,
         avatarUrl: rows[0].avatar_url ?? undefined,
+        role: rows[0].role,
         createdAt: rows[0].created_at,
     };
 }
@@ -54,7 +58,7 @@ export async function findUserByEmail(
 export async function findUserById(id: string): Promise<User | undefined> {
     await createTable();
     const rows = await sql`
-        SELECT id, email, name, password_hash, created_at
+        SELECT id, email, name, password_hash, avatar_url, role, created_at
         FROM users WHERE id = ${id}
     `;
     if (!rows[0]) return undefined;
@@ -64,8 +68,24 @@ export async function findUserById(id: string): Promise<User | undefined> {
         name: rows[0].name,
         passwordHash: rows[0].password_hash,
         avatarUrl: rows[0].avatar_url ?? undefined,
+        role: rows[0].role,
         createdAt: rows[0].created_at,
     };
+}
+
+export async function getAllUsers(): Promise<SafeUser[]> {
+    await createTable();
+    const rows = await sql`
+        SELECT id, email, name, avatar_url, role, created_at FROM users
+    `;
+    return rows.map((r) => ({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        avatarUrl: r.avatar_url ?? undefined,
+        role: r.role,
+        createdAt: r.created_at,
+    }));
 }
 
 export async function createUser(
@@ -78,7 +98,7 @@ export async function createUser(
     const rows = await sql`
         INSERT INTO users (email, name, password_hash)
         VALUES (${email.toLowerCase().trim()}, ${name.trim()}, ${passwordHash})
-        RETURNING id, email, name, avatar_url, created_at
+        RETURNING id, email, name, avatar_url, role, created_at
     `;
     return {
         id: rows[0].id,
@@ -87,20 +107,6 @@ export async function createUser(
         avatarUrl: rows[0].avatar_url ?? undefined,
         createdAt: rows[0].created_at,
     };
-}
-
-export async function getAllUsers(): Promise<SafeUser[]> {
-    await createTable();
-    const rows = await sql`
-        SELECT id, email, name, avatar_url, created_at FROM users
-    `;
-    return rows.map((r) => ({
-        id: r.id,
-        email: r.email,
-        name: r.name,
-        avatarUrl: r.avatar_url ?? undefined,
-        createdAt: r.created_at,
-    }));
 }
 
 export async function emailExists(email: string): Promise<boolean> {
@@ -129,6 +135,7 @@ export interface User {
     name: string;
     passwordHash: string;
     avatarUrl?: string;
+    role: "user" | "admin" | "superadmin";
     createdAt: string;
 }
 
@@ -137,7 +144,15 @@ export interface SafeUser {
     email: string;
     name: string;
     avatarUrl?: string;
+    role: "user" | "admin" | "superadmin";
     createdAt: string;
+}
+
+export async function updateUserRole(
+    id: string,
+    role: "user" | "admin",
+): Promise<void> {
+    await sql`UPDATE users SET role = ${role} WHERE id = ${id}`;
 }
 
 export async function updateUserAvatar(

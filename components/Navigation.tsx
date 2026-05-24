@@ -38,6 +38,15 @@ export default function Navigation() {
                             </Link>
                         ))}
 
+                        {user?.role === "superadmin" && (
+                            <Link
+                                href="/admin"
+                                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                            >
+                                Admin
+                            </Link>
+                        )}
+
                         {user ? (
                             <button
                                 onClick={signOut}

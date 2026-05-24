@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
             email: user.email,
             name: user.name,
             avatarUrl: user.avatarUrl ?? session.user.image ?? undefined,
+            role: user.role,
             createdAt: user.createdAt,
         },
     });

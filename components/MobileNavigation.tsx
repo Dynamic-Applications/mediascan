@@ -42,6 +42,16 @@ export default function MobileNavigation() {
                             </Link>
                         ))}
 
+                        {user?.role === "superadmin" && (
+                            <Link
+                                href="/admin"
+                                className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Admin
+                            </Link>
+                        )}
+
                         {user ? (
                             <button
                                 className="text-lg font-medium text-foreground hover:text-primary transition-colors duration-200 text-left"

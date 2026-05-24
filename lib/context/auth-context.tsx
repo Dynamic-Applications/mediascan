@@ -8,6 +8,7 @@ interface AuthUser {
     email: string;
     name: string;
     avatarUrl?: string;
+    role: "user" | "admin" | "superadmin";
 }
 
 interface AuthContextType {
