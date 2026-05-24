@@ -105,6 +105,7 @@ export async function createUser(
         email: rows[0].email,
         name: rows[0].name,
         avatarUrl: rows[0].avatar_url ?? undefined,
+        role: rows[0].role,
         createdAt: rows[0].created_at,
     };
 }
