@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { signIn } from "next-auth/react";
 
 type View = "login" | "signup" | "closed";
 
@@ -268,7 +269,13 @@ function AuthDialogs({
                             </span>
                             <Separator className="flex-1" />
                         </div>
-                        <Button className="w-full" variant="outline">
+                        <Button
+                            className="w-full"
+                            variant="outline"
+                            onClick={() =>
+                                signIn("google", { callbackUrl: "/" })
+                            }
+                        >
                             <svg
                                 aria-label="Google"
                                 className="mr-2 h-4 w-4"

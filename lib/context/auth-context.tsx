@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface AuthUser {
     id: string;
@@ -22,8 +23,10 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
+    const { data: session } = useSession();
 
     useEffect(() => {
+        // check our own JWT cookie first
         fetch("/api/auth/me")
             .then((r) => r.json())
             .then((data) => {
@@ -32,8 +35,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .catch(() => {});
     }, []);
 
+    // sync Google session
+    useEffect(() => {
+        if (session?.user?.email && !user) {
+            fetch("/api/auth/me")
+                .then((r) => r.json())
+                .then((data) => {
+                    if (data.success) setUser(data.user);
+                })
+                .catch(() => {});
+        }
+    }, [session]);
+
     async function signOut() {
         await fetch("/api/auth/signout", { method: "POST" });
+        const { signOut: nextAuthSignOut } = await import("next-auth/react");
+        await nextAuthSignOut({ redirect: false });
         setUser(null);
     }
 
