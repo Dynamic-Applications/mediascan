@@ -32,43 +32,12 @@ export async function createTable() {
     AlTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`;
 }
 
-export async function createUser(
-    email: string,
-    name: string,
-    password: string,
-): Promise<SafeUser> {
-    await createTable();
-    const passwordHash = await bcrypt.hash(password, 10);
-    const rows = await sql`
-        INSERT INTO users (email, name, password_hash)
-        VALUES (${email.toLowerCase().trim()}, ${name.trim()}, ${passwordHash})
-        RETURNING id, email, name, created_at
-    `;
-    return {
-        id: rows[0].id,
-        email: rows[0].email,
-        name: rows[0].name,
-        createdAt: rows[0].created_at,
-    };
-}
-
-export async function getAllUsers(): Promise<SafeUser[]> {
-    await createTable();
-    const rows = await sql`SELECT id, email, name, created_at FROM users`;
-    return rows.map((r) => ({
-        id: r.id,
-        email: r.email,
-        name: r.name,
-        createdAt: r.created_at,
-    }));
-}
-
 export async function findUserByEmail(
     email: string,
 ): Promise<User | undefined> {
     await createTable();
     const rows = await sql`
-        SELECT id, email, name, password_hash, created_at
+        SELECT id, email, name, password_hash, avatar_url, created_at
         FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
     if (!rows[0]) return undefined;
@@ -77,6 +46,7 @@ export async function findUserByEmail(
         email: rows[0].email,
         name: rows[0].name,
         passwordHash: rows[0].password_hash,
+        avatarUrl: rows[0].avatar_url ?? undefined,
         createdAt: rows[0].created_at,
     };
 }
@@ -96,6 +66,41 @@ export async function findUserById(id: string): Promise<User | undefined> {
         avatarUrl: rows[0].avatar_url ?? undefined,
         createdAt: rows[0].created_at,
     };
+}
+
+export async function createUser(
+    email: string,
+    name: string,
+    password: string,
+): Promise<SafeUser> {
+    await createTable();
+    const passwordHash = await bcrypt.hash(password, 10);
+    const rows = await sql`
+        INSERT INTO users (email, name, password_hash)
+        VALUES (${email.toLowerCase().trim()}, ${name.trim()}, ${passwordHash})
+        RETURNING id, email, name, avatar_url, created_at
+    `;
+    return {
+        id: rows[0].id,
+        email: rows[0].email,
+        name: rows[0].name,
+        avatarUrl: rows[0].avatar_url ?? undefined,
+        createdAt: rows[0].created_at,
+    };
+}
+
+export async function getAllUsers(): Promise<SafeUser[]> {
+    await createTable();
+    const rows = await sql`
+        SELECT id, email, name, avatar_url, created_at FROM users
+    `;
+    return rows.map((r) => ({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        avatarUrl: r.avatar_url ?? undefined,
+        createdAt: r.created_at,
+    }));
 }
 
 export async function emailExists(email: string): Promise<boolean> {
