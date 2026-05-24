@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -23,10 +23,21 @@ const AuthContext = createContext<AuthContextType>({
     signOut: async () => {},
 });
 
+const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const ACTIVITY_EVENTS = [
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "touchstart",
+    "scroll",
+    "click",
+];
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const { data: session, status } = useSession();
     const router = useRouter();
+    const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     async function fetchMe() {
         try {
@@ -37,10 +48,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {}
     }
 
+    async function signOut() {
+        clearInactivityTimer();
+        await fetch("/api/auth/signout", { method: "POST" });
+        await nextAuthSignOut({ redirect: false });
+        setUser(null);
+        router.push("/");
+    }
+
+    function clearInactivityTimer() {
+        if (inactivityTimer.current) {
+            clearTimeout(inactivityTimer.current);
+            inactivityTimer.current = null;
+        }
+    }
+
+    function resetInactivityTimer() {
+        clearInactivityTimer();
+        inactivityTimer.current = setTimeout(() => {
+            signOut();
+        }, INACTIVITY_TIMEOUT);
+    }
+
+    // start/stop inactivity timer based on user state
+    useEffect(() => {
+        if (!user) {
+            clearInactivityTimer();
+            return;
+        }
+
+        // start timer and listen for activity
+        resetInactivityTimer();
+        ACTIVITY_EVENTS.forEach((e) =>
+            window.addEventListener(e, resetInactivityTimer),
+        );
+
+        return () => {
+            clearInactivityTimer();
+            ACTIVITY_EVENTS.forEach((e) =>
+                window.removeEventListener(e, resetInactivityTimer),
+            );
+        };
+    }, [user]);
+
+    // fetch on mount
     useEffect(() => {
         fetchMe();
     }, []);
 
+    // sync with NextAuth session
     useEffect(() => {
         if (status === "authenticated" && !user) {
             fetchMe();
@@ -50,14 +106,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [status]);
 
-    async function signOut() {
-        // clear custom JWT cookie
-        await fetch("/api/auth/signout", { method: "POST" });
-        // clear NextAuth session (Google)
-        await nextAuthSignOut({ redirect: false });
-        setUser(null);
-        router.push("/");
-    }
+    // poll /api/auth/me every 2 minutes to catch server-side session expiry
+    useEffect(() => {
+        if (!user) return;
+        const interval = setInterval(
+            async () => {
+                const r = await fetch("/api/auth/me");
+                const data = await r.json();
+                if (!data.success) {
+                    await signOut();
+                }
+            },
+            2 * 60 * 1000,
+        );
+        return () => clearInterval(interval);
+    }, [user]);
 
     return (
         <AuthContext.Provider value={{ user, setUser, signOut }}>

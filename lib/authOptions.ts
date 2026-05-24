@@ -8,12 +8,14 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             authorization: {
-                params: {
-                    prompt: "select_account",
-                },
-            }
+                params: { prompt: "select_account" },
+            },
         }),
     ],
+    session: {
+        maxAge: 10 * 60, // 10 minutes
+        updateAge: 60, // refresh every 60 seconds
+    },
     callbacks: {
         async signIn({ user }) {
             if (!user.email || !user.name) return false;
@@ -36,4 +38,5 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: "/",
     },
+    secret: process.env.NEXTAUTH_SECRET,
 };

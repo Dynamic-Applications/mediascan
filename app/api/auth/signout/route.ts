@@ -3,15 +3,25 @@ import { clearAuthCookie } from "@/lib/jwt";
 import { blacklistToken } from "@/lib/tokenBlacklist";
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    blacklistToken(authHeader.slice(7));
-  }
-  const cookie = request.cookies.get("auth_token")?.value;
-  if (cookie) {
-    blacklistToken(cookie);
-  }
-  const response = NextResponse.json({ success: true, message: "Signed out" });
-  response.headers.set("Set-Cookie", clearAuthCookie());
-  return response;
+    const cookie = request.cookies.get("auth_token")?.value;
+    if (cookie) {
+        await blacklistToken(cookie);
+    }
+
+    const response = NextResponse.json({
+        success: true,
+        message: "Signed out",
+    });
+
+    // clear custom JWT cookie
+    response.headers.set("Set-Cookie", clearAuthCookie());
+
+    // also clear NextAuth cookies
+    response.cookies.delete("next-auth.session-token");
+    response.cookies.delete("__Secure-next-auth.session-token");
+    response.cookies.delete("next-auth.csrf-token");
+    response.cookies.delete("__Host-next-auth.csrf-token");
+    response.cookies.delete("next-auth.callback-url");
+
+    return response;
 }

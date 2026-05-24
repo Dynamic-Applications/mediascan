@@ -23,24 +23,25 @@ export async function GET(request: NextRequest) {
         }
     }
 
-    // fall back to NextAuth session (Google)
+    // check NextAuth session
     const session = await getServerSession(authOptions);
-    if (session?.user?.email) {
-        const user = await findUserByEmail(session.user.email);
-        if (user) {
-            return NextResponse.json({
-                success: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    avatarUrl:
-                        user.avatarUrl ?? session.user.image ?? undefined,
-                    createdAt: user.createdAt,
-                },
-            });
-        }
+    if (!session?.user?.email) {
+        return NextResponse.json({ success: false }, { status: 401 });
     }
 
-    return NextResponse.json({ success: false }, { status: 401 });
+    const user = await findUserByEmail(session.user.email);
+    if (!user) {
+        return NextResponse.json({ success: false }, { status: 401 });
+    }
+
+    return NextResponse.json({
+        success: true,
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            avatarUrl: user.avatarUrl ?? session.user.image ?? undefined,
+            createdAt: user.createdAt,
+        },
+    });
 }
