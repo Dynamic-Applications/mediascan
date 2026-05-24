@@ -1,17 +1,19 @@
-import CategoriesSection from "@/components/CategoriesSection";
-import FeaturedSection from "@/components/FeaturedSection";
-import HeroSection from "@/components/HeroSection";
-import QuotesSection from "@/components/QuotesSection";
+"use client";
 
-export default function Home() {
+// import HeroSection from "@/components/HeroSection";
+// import FeaturedSection from "@/components/FeaturedSection";
+import CategoriesSection from "@/components/CategoriesSection";
+import QuotesSection from "@/components/QuotesSection";
+import YouTubeSearch from "@/components/YouTubeSearch";
+
+export default function HomePage() {
     return (
-        <div className="min-h-screen bg-background">
-            <main>
-                <HeroSection />
-                <FeaturedSection />
-                <CategoriesSection />
-                <QuotesSection />
-            </main>
-        </div>
+        <>
+            {/* <HeroSection /> */}
+            <YouTubeSearch />
+            {/* <FeaturedSection /> */}
+            <QuotesSection />
+            <CategoriesSection />
+        </>
     );
 }

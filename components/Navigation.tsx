@@ -2,6 +2,7 @@
 
 import { navItems } from "@/lib/constants";
 import Link from "next/link";
+import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import MobileNavigation from "./MobileNavigation";
 import { LoginDialog } from "./auth-dialogs";
@@ -20,9 +21,24 @@ export default function Navigation() {
                             MediaScan
                         </h1>
                         {user && (
-                            <p className="text-xs text-muted-foreground -mt-1">
-                                {user.name}
-                            </p>
+                            <div className="flex items-center gap-1.5 mt-1">
+                                <div className="h-5 w-5 rounded-full bg-muted overflow-hidden flex items-center justify-center text-[10px] font-semibold text-foreground shrink-0">
+                                    {user.avatarUrl ? (
+                                        <Image
+                                            src={user.avatarUrl}
+                                            alt={user.name}
+                                            width={20}
+                                            height={20}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    ) : (
+                                        user.name.charAt(0).toUpperCase()
+                                    )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    {user.name}
+                                </p>
+                            </div>
                         )}
                     </div>
 
@@ -38,7 +54,8 @@ export default function Navigation() {
                             </Link>
                         ))}
 
-                        {(user?.role === "SuperAdmin" || user?.role === "Admin" ) && (
+                        {(user?.role === "SuperAdmin" ||
+                            user?.role === "Admin") && (
                             <Link
                                 href="/admin"
                                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
