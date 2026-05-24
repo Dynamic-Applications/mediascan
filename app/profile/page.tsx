@@ -9,6 +9,7 @@ interface ProfileUser {
     email: string;
     name: string;
     avatarUrl?: string;
+    role: "user" | "admin" | "superadmin";
     createdAt: string;
 }
 
@@ -165,6 +166,22 @@ export default function ProfilePage() {
                         </span>
                         <span className="text-sm font-medium text-foreground">
                             {profile.email}
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center py-3 border-b border-border">
+                        <span className="text-sm text-muted-foreground">
+                            Role
+                        </span>
+                        <span
+                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                                profile.role === "superadmin"
+                                    ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                                    : profile.role === "admin"
+                                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                      : "bg-muted text-muted-foreground"
+                            }`}
+                        >
+                            {profile.role}
                         </span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-border">
