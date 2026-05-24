@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useProtectedVideo } from "@/lib/hooks/useProtectedVideo";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
 
 interface VideoItem {
     id: { videoId: string };
