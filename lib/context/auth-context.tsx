@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface AuthUser {
     id: string;
@@ -25,12 +26,14 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const { data: session, status } = useSession();
+    const router = useRouter();
 
     async function fetchMe() {
         try {
             const r = await fetch("/api/auth/me");
             const data = await r.json();
             if (data.success) setUser(data.user);
+            else setUser(null);
         } catch {}
     }
 
@@ -38,17 +41,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchMe();
     }, []);
 
-    // re-fetch when Google session becomes available
     useEffect(() => {
         if (status === "authenticated" && !user) {
             fetchMe();
         }
+        if (status === "unauthenticated") {
+            setUser(null);
+        }
     }, [status]);
 
     async function signOut() {
+        // clear custom JWT cookie
         await fetch("/api/auth/signout", { method: "POST" });
+        // clear NextAuth session (Google)
         await nextAuthSignOut({ redirect: false });
         setUser(null);
+        router.push("/");
     }
 
     return (
