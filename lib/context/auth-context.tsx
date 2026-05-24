@@ -50,10 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function signOut() {
         clearInactivityTimer();
-        await fetch("/api/auth/signout", { method: "POST" });
+        // sign out from NextAuth first — this invalidates the session server-side
         await nextAuthSignOut({ redirect: false });
+        // then clear our custom JWT
+        await fetch("/api/auth/signout", { method: "POST" });
         setUser(null);
-        router.push("/");
+        // hard redirect to flush any cached React state
+        window.location.href = "/";
     }
 
     function clearInactivityTimer() {

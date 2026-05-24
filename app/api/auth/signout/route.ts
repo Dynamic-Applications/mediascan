@@ -13,15 +13,30 @@ export async function POST(request: NextRequest) {
         message: "Signed out",
     });
 
-    // clear custom JWT cookie
-    response.headers.set("Set-Cookie", clearAuthCookie());
+    // clear custom JWT
+    response.headers.append("Set-Cookie", clearAuthCookie());
 
-    // also clear NextAuth cookies
-    response.cookies.delete("next-auth.session-token");
-    response.cookies.delete("__Secure-next-auth.session-token");
-    response.cookies.delete("next-auth.csrf-token");
-    response.cookies.delete("__Host-next-auth.csrf-token");
-    response.cookies.delete("next-auth.callback-url");
+    // clear all NextAuth cookies
+    const cookiesToClear = [
+        "next-auth.session-token",
+        "__Secure-next-auth.session-token",
+        "next-auth.csrf-token",
+        "__Host-next-auth.csrf-token",
+        "next-auth.callback-url",
+        "__Secure-next-auth.callback-url",
+    ];
+
+    cookiesToClear.forEach((name) => {
+        response.headers.append(
+            "Set-Cookie",
+            `${name}=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax`,
+        );
+        // also try with Secure flag for production
+        response.headers.append(
+            "Set-Cookie",
+            `${name}=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax; Secure`,
+        );
+    });
 
     return response;
 }
