@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVideo";
 
 interface VideoItem {
     id: { videoId: string };
@@ -27,7 +27,7 @@ export default function YouTubeSearch() {
     const [nextPageToken, setNextPageToken] = useState<string | null>(null);
     const [prevPageToken, setPrevPageToken] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { handleVideoClick } = useProtectedVideo();
+    const { handleVideoClick, isAuthenticated } = useProtectedVideo();
 
     async function search(q: string, pageToken?: string) {
         if (!q.trim()) return;

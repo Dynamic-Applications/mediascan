@@ -6,8 +6,7 @@ import { categories } from "@/lib/data";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
 import { Calendar, X } from "lucide-react";
-import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
-
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVideo";
 
 interface VideoItem {
     id: { videoId: string };
@@ -23,7 +22,9 @@ interface VideoItem {
 
 export default function CategoriesSection() {
     const allCategories = categories;
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(
+        null,
+    );
     const [videos, setVideos] = useState<VideoItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -41,7 +42,9 @@ export default function CategoriesSection() {
         setError("");
 
         try {
-            const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(categoryName)}`);
+            const res = await fetch(
+                `/api/youtube/search?q=${encodeURIComponent(categoryName)}`,
+            );
             const data = await res.json();
             if (data.success) {
                 setVideos(data.items?.slice(0, 8) ?? []);
@@ -94,28 +97,37 @@ export default function CategoriesSection() {
                         >
                             <div
                                 className="group cursor-pointer"
-                                onClick={() => handleCategoryClick(category.name)}
+                                onClick={() =>
+                                    handleCategoryClick(category.name)
+                                }
                             >
-                                <div className={`rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border ${
-                                    selectedCategory === category.name
-                                        ? "bg-primary text-primary-foreground border-primary"
-                                        : "bg-card border-border/50"
-                                }`}>
+                                <div
+                                    className={`rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border ${
+                                        selectedCategory === category.name
+                                            ? "bg-primary text-primary-foreground border-primary"
+                                            : "bg-card border-border/50"
+                                    }`}
+                                >
                                     <div className="mb-4">
                                         <div
-                                            dangerouslySetInnerHTML={{ __html: category.icon }}
+                                            dangerouslySetInnerHTML={{
+                                                __html: category.icon,
+                                            }}
                                             className={`w-8 h-8 mx-auto group-hover:scale-110 transition-transform duration-300 ${
-                                                selectedCategory === category.name
+                                                selectedCategory ===
+                                                category.name
                                                     ? "text-primary-foreground"
                                                     : "text-primary"
                                             }`}
                                         />
                                     </div>
-                                    <h3 className={`font-semibold mb-2 transition-colors duration-300 ${
-                                        selectedCategory === category.name
-                                            ? "text-primary-foreground"
-                                            : "text-foreground group-hover:text-primary"
-                                    }`}>
+                                    <h3
+                                        className={`font-semibold mb-2 transition-colors duration-300 ${
+                                            selectedCategory === category.name
+                                                ? "text-primary-foreground"
+                                                : "text-foreground group-hover:text-primary"
+                                        }`}
+                                    >
                                         {category.name}
                                     </h3>
                                     <Badge
@@ -146,7 +158,10 @@ export default function CategoriesSection() {
                                 {selectedCategory} Videos
                             </h3>
                             <button
-                                onClick={() => { setSelectedCategory(null); setVideos([]); }}
+                                onClick={() => {
+                                    setSelectedCategory(null);
+                                    setVideos([]);
+                                }}
                                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                             >
                                 <X className="h-4 w-4" />
@@ -158,7 +173,10 @@ export default function CategoriesSection() {
                         {loading && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {Array.from({ length: 8 }).map((_, i) => (
-                                    <div key={i} className="rounded-xl border border-border overflow-hidden animate-pulse">
+                                    <div
+                                        key={i}
+                                        className="rounded-xl border border-border overflow-hidden animate-pulse"
+                                    >
                                         <div className="bg-muted aspect-video w-full" />
                                         <div className="p-3 space-y-2">
                                             <div className="h-4 bg-muted rounded w-3/4" />
@@ -170,7 +188,9 @@ export default function CategoriesSection() {
                         )}
 
                         {error && (
-                            <p className="text-sm text-destructive text-center">{error}</p>
+                            <p className="text-sm text-destructive text-center">
+                                {error}
+                            </p>
                         )}
 
                         {!loading && videos.length > 0 && (
@@ -180,18 +200,29 @@ export default function CategoriesSection() {
                                         key={video.id.videoId}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.4, delay: index * 0.05 }}
+                                        transition={{
+                                            duration: 0.4,
+                                            delay: index * 0.05,
+                                        }}
                                     >
                                         <a
                                             href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            onClick={(e) => handleVideoClick(e, video.id.videoId)}
+                                            onClick={(e) =>
+                                                handleVideoClick(
+                                                    e,
+                                                    video.id.videoId,
+                                                )
+                                            }
                                             className="block rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/30 hover:shadow-lg transition-all duration-300 group"
                                         >
                                             <div className="relative aspect-video w-full overflow-hidden">
                                                 <Image
-                                                    src={video.snippet.thumbnails.medium.url}
+                                                    src={
+                                                        video.snippet.thumbnails
+                                                            .medium.url
+                                                    }
                                                     alt={video.snippet.title}
                                                     fill
                                                     sizes="(max-width: 768px) 100vw, 25vw"
@@ -202,18 +233,27 @@ export default function CategoriesSection() {
                                                         variant="secondary"
                                                         className="bg-background/80 backdrop-blur-xs text-xs"
                                                     >
-                                                        {video.snippet.channelTitle}
+                                                        {
+                                                            video.snippet
+                                                                .channelTitle
+                                                        }
                                                     </Badge>
                                                 </div>
                                             </div>
                                             <div className="p-3">
                                                 <h4
                                                     className="text-sm font-medium text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-300"
-                                                    dangerouslySetInnerHTML={{ __html: video.snippet.title }}
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: video.snippet
+                                                            .title,
+                                                    }}
                                                 />
                                                 <div className="flex items-center text-xs text-muted-foreground">
                                                     <Calendar className="h-3 w-3 mr-1" />
-                                                    {formatDate(video.snippet.publishedAt)}
+                                                    {formatDate(
+                                                        video.snippet
+                                                            .publishedAt,
+                                                    )}
                                                 </div>
                                             </div>
                                         </a>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import * as motion from "motion/react-client";
 import { TrendingUp, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useProtectedVideo } from "@/lib/hooks/useProtectedVIdeo";
+import { useProtectedVideo } from "@/lib/hooks/useProtectedVideo";
 
 interface VideoItem {
     id: { videoId: string };
@@ -67,7 +67,10 @@ export default function QuotesSection() {
                 {loading && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="rounded-xl border border-border overflow-hidden animate-pulse">
+                            <div
+                                key={i}
+                                className="rounded-xl border border-border overflow-hidden animate-pulse"
+                            >
                                 <div className="bg-muted aspect-video w-full" />
                                 <div className="p-3 space-y-2">
                                     <div className="h-4 bg-muted rounded w-3/4" />
@@ -87,18 +90,26 @@ export default function QuotesSection() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                transition={{
+                                    duration: 0.6,
+                                    delay: index * 0.1,
+                                }}
                             >
                                 <a
                                     href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    onClick={(e) => handleVideoClick(e, video.id.videoId)}
+                                    onClick={(e) =>
+                                        handleVideoClick(e, video.id.videoId)
+                                    }
                                     className="block rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/30 hover:shadow-lg transition-all duration-300 group"
                                 >
                                     <div className="relative aspect-video w-full overflow-hidden">
                                         <Image
-                                            src={video.snippet.thumbnails.medium.url}
+                                            src={
+                                                video.snippet.thumbnails.medium
+                                                    .url
+                                            }
                                             alt={video.snippet.title}
                                             fill
                                             sizes="(max-width: 768px) 100vw, 33vw"
@@ -121,11 +132,15 @@ export default function QuotesSection() {
                                     <div className="p-4">
                                         <h3
                                             className="text-sm font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-300"
-                                            dangerouslySetInnerHTML={{ __html: video.snippet.title }}
+                                            dangerouslySetInnerHTML={{
+                                                __html: video.snippet.title,
+                                            }}
                                         />
                                         <div className="flex items-center text-xs text-muted-foreground">
                                             <Calendar className="h-3 w-3 mr-1" />
-                                            {formatDate(video.snippet.publishedAt)}
+                                            {formatDate(
+                                                video.snippet.publishedAt,
+                                            )}
                                         </div>
                                     </div>
                                 </a>
