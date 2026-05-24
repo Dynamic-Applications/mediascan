@@ -136,7 +136,7 @@ export interface User {
     name: string;
     passwordHash: string;
     avatarUrl?: string;
-    role: "user" | "admin" | "superadmin";
+    role: "User" | "Admin" | "SuperAdmin";
     createdAt: string;
 }
 
@@ -145,13 +145,14 @@ export interface SafeUser {
     email: string;
     name: string;
     avatarUrl?: string;
-    role: "user" | "admin" | "superadmin";
+    role: "User" | "Admin" | "SuperAdmin";
     createdAt: string;
 }
 
+
 export async function updateUserRole(
     id: string,
-    role: "user" | "admin",
+    role: "User" | "Admin" | "SuperAdmin",
 ): Promise<void> {
     await sql`UPDATE users SET role = ${role} WHERE id = ${id}`;
 }

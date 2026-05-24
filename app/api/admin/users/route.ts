@@ -6,31 +6,29 @@ import { authOptions } from "@/lib/authOptions";
 
 async function getRequestingUser(request: NextRequest) {
     const payload = await getTokenFromRequest(request);
-    console.log("JWT payload:", payload);
-    if (payload) {
-        const user = await findUserById(payload.sub);
-        console.log("User from JWT:", user);
-        return user;
-    }
+    if (payload) return findUserById(payload.sub);
     const session = await getServerSession(authOptions);
-    console.log("NextAuth session:", session);
-    if (session?.user?.email) {
-        const user = await findUserByEmail(session.user.email);
-        console.log("User from session:", user);
-        return user;
-    }
+    if (session?.user?.email) return findUserByEmail(session.user.email);
     return null;
 }
 
 export async function GET(request: NextRequest) {
     const requester = await getRequestingUser(request);
-    console.log("Requester:", requester);
-    if (!requester || requester.role !== "SuperAdmin") {
+
+    if (!requester || !["SuperAdmin", "Admin"].includes(requester.role)) {
         return NextResponse.json(
             { success: false, error: "Forbidden" },
             { status: 403 },
         );
     }
-    const users = await getAllUsers();
-    return NextResponse.json({ success: true, data: users });
+
+    const allUsers = await getAllUsers();
+
+    const filtered = allUsers.filter((u) => {
+        if (requester.role === "SuperAdmin") return u.role !== "SuperAdmin";
+        if (requester.role === "Admin") return u.role === "User";
+        return false;
+    });
+
+    return NextResponse.json({ success: true, data: filtered });
 }

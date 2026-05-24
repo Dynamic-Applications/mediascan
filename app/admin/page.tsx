@@ -22,15 +22,19 @@ export default function AdminPage() {
     const [error, setError] = useState("");
     const [updating, setUpdating] = useState<string | null>(null);
     const [successId, setSuccessId] = useState<string | null>(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
     const isSuperAdmin = user?.role === "SuperAdmin";
 
     useEffect(() => {
-        if (!user) return;
-        if (!["SuperAdmin", "Admin"].includes(user.role)) {
+        if (user === null && !authChecked) return; // still loading auth
+        setAuthChecked(true);
+
+        if (!user || !["SuperAdmin", "Admin"].includes(user.role)) {
             router.push("/");
             return;
         }
+
         fetch("/api/admin/users")
             .then((r) => r.json())
             .then((data) => {
@@ -42,7 +46,7 @@ export default function AdminPage() {
             })
             .catch(() => setError("Failed to load users"))
             .finally(() => setLoading(false));
-    }, [user, router]);
+    }, [user, router, authChecked]);
 
     async function handleRoleChange(id: string, newRole: "User" | "Admin") {
         setUpdating(id);
@@ -72,15 +76,15 @@ export default function AdminPage() {
         }
     }
 
-    if (!user || !["SuperAdmin", "Admin"].includes(user.role)) return null;
-
-    if (loading) {
+    if (!authChecked || (loading && user)) {
         return (
             <div className="max-w-6xl mx-auto px-4 py-16 flex items-center justify-center">
                 <p className="text-muted-foreground text-sm">Loading...</p>
             </div>
         );
     }
+
+    if (!user || !["SuperAdmin", "Admin"].includes(user.role)) return null;
 
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
