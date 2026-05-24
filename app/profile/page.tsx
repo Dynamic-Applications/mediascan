@@ -135,6 +135,24 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                     <div className="flex justify-between items-center py-3 border-b border-border">
                         <span className="text-sm text-muted-foreground">
+                            Profile photo
+                        </span>
+                        <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex items-center justify-center text-sm font-semibold text-foreground">
+                            {profile.avatarUrl ? (
+                                <Image
+                                    src={profile.avatarUrl}
+                                    alt={profile.name}
+                                    width={40}
+                                    height={40}
+                                    className="object-cover w-full h-full"
+                                />
+                            ) : (
+                                profile.name.charAt(0).toUpperCase()
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex justify-between items-center py-3 border-b border-border">
+                        <span className="text-sm text-muted-foreground">
                             Full name
                         </span>
                         <span className="text-sm font-medium text-foreground">
