@@ -218,7 +218,7 @@ export default function YouTubeSearch() {
 
                 {/* Empty state */}
                 {!loading && videos.length === 0 && !error && (
-                    <div className="text-center py-12">
+                    <div className="text-center py-0">
                         <p className="text-muted-foreground text-sm">
                             Search for videos to get started
                         </p>
