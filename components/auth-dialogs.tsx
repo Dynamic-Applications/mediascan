@@ -40,6 +40,7 @@ function AuthDialogs({
     const [signupError, setSignupError] = useState("");
     const [signupLoading, setSignupLoading] = useState(false);
     const [signupSuccess, setSignupSuccess] = useState("");
+    const [remember, setRemember] = useState(false);
 
     useEffect(() => {
         function handleOpenLogin() {
@@ -60,6 +61,7 @@ function AuthDialogs({
                 body: JSON.stringify({
                     email: loginEmail,
                     password: loginPassword,
+                    remember,
                 }),
             });
             const data = await res.json();
@@ -156,7 +158,7 @@ function AuthDialogs({
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                                <Checkbox id="remember" />
+                                <Checkbox id="remember" checked={remember} onCheckedChange={val => setRemember(val === true)} />
                                 <Label
                                     className="font-normal text-sm"
                                     htmlFor="remember"

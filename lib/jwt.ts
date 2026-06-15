@@ -45,8 +45,8 @@ export async function getTokenFromRequest(req: NextRequest): Promise<JWTPayload 
   return null;
 }
 
-export function makeAuthCookie(token: string): string {
-  const maxAge = 60 * 60 * 24 * 7;
+export function makeAuthCookie(token: string, options?: { maxAge?: number }): string {
+  const maxAge = options?.maxAge ?? 60 * 60 * 24 * 7;
   return `auth_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`;
 }
 
